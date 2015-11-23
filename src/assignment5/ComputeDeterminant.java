@@ -8,8 +8,6 @@ import java.util.Scanner;
 
 public class ComputeDeterminant {
 
-    static int recursionCount = 0;
-
     /**
      * Recursive approach for calculating the determinant for given matrix
      * Base case is 2x2 matrix, which can be calculated easily
@@ -23,9 +21,6 @@ public class ComputeDeterminant {
      */
 
     public static int recursiveDeterminant(int[][] matrix){
-        recursionCount++;
-        System.out.println("Recursion Count is " + recursionCount + " with matrix length :" + matrix.length + " and matrix:");
-        printMatrix(matrix);
         int determinant = 0;
         if(matrix.length == 0){
             determinant = -1;
@@ -62,13 +57,10 @@ public class ComputeDeterminant {
                 if((columnPosition == column)){
                     originalColumnIndex++;
                 }
-                System.out.println("smallerMatrix["+row+"]["+column+"] = matrix["+(row+1)+"]["+column+"]");
                 smallerMatrix[row][column] = matrix[row+1][originalColumnIndex];
                 originalColumnIndex++;
             }
         }
-        System.out.println("Smaller Matrix:");
-        printMatrix(smallerMatrix);
         return smallerMatrix;
     }
 
@@ -131,9 +123,9 @@ public class ComputeDeterminant {
     public static void main(String[]args) throws IOException{
 
         Scanner stringScan = new Scanner(System.in);
-        // System.out.print("Enter the file's name to be read:");
-        // String fileName = stringScan.nextLine();
-        int[][] matrix = generateMatrix("matrix.txt");
+        System.out.print("Enter the file's name to be read:");
+        String fileName = stringScan.nextLine();
+        int[][] matrix = generateMatrix(fileName);
         printMatrix(matrix);
         System.out.println("Determinant is " + recursiveDeterminant(matrix));
     }
