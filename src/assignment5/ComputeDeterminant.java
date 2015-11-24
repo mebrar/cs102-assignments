@@ -102,7 +102,6 @@ public class ComputeDeterminant {
             for(int row = 0; row < matrix[column].length; row++){
                 transposedMatrix[row][column] = matrix[column][row];
             }
-            // transposedMatrix[column] = columnArray;
         }
         return transposedMatrix;
     }
@@ -114,8 +113,6 @@ public class ComputeDeterminant {
                 cofactoredMatrix[row][column] = Math.pow(-1,column+row)*recursiveDeterminant(formSmallerMatrix(matrix,column,row));
             }
         }
-        System.out.println("COFACTORED");
-        printMatrix(cofactoredMatrix);
         return cofactoredMatrix;
     }
 
