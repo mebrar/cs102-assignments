@@ -20,8 +20,8 @@ public class ComputeDeterminant {
      * @return the determinant of the input matrix
      */
 
-    public static int recursiveDeterminant(int[][] matrix){
-        int determinant = 0;
+    public static double recursiveDeterminant(double[][] matrix){
+        double determinant = 0;
         if(matrix.length == 0){
             determinant = -1;
         }
@@ -33,7 +33,7 @@ public class ComputeDeterminant {
         }
         else {
             for (int column = 0; column < matrix.length; column++) {
-                determinant += Math.pow(-1,column)* matrix[0][column] * recursiveDeterminant(formSmallerMatrix(matrix, column));
+                determinant += Math.pow(-1,column)* matrix[0][column] * recursiveDeterminant(formSmallerMatrix(matrix, column,0));
             }
         }
         return determinant;
@@ -48,17 +48,21 @@ public class ComputeDeterminant {
      * @return the smaller matrix formed for calcualting determinant
      */
 
-    public static int[][] formSmallerMatrix(int[][] matrix, int columnPosition){
-        int[][] smallerMatrix = new int[matrix.length-1][matrix.length-1];
+
+    public static double[][] formSmallerMatrix(double[][] matrix, int columnPosition, int rowPosition){
+        double[][] smallerMatrix = new double[matrix.length-1][matrix.length-1];
         int originalColumnIndex;
-        for(int row = 0; row < smallerMatrix.length; row++){
+        int originalRowIndex = 0;
+        for(int row = 0; row < smallerMatrix.length; row++, originalRowIndex++){
             originalColumnIndex = 0;
-            for(int column = 0; column < smallerMatrix.length; column++){
+            if(originalRowIndex == rowPosition){
+                originalRowIndex++;
+            }
+            for(int column = 0; column < smallerMatrix.length; column++, originalColumnIndex++){
                 if((columnPosition == column)){
                     originalColumnIndex++;
                 }
-                smallerMatrix[row][column] = matrix[row+1][originalColumnIndex];
-                originalColumnIndex++;
+                smallerMatrix[row][column] = matrix[originalRowIndex][originalColumnIndex];
             }
         }
         return smallerMatrix;
@@ -76,30 +80,63 @@ public class ComputeDeterminant {
      * @throws IOException
      */
 
-    public static int[][] generateMatrix(String fileName) throws IOException{
+    public static double[][] generateMatrix(String fileName) throws IOException{
         Scanner fileScan = new Scanner(new File(fileName));
 
         int matrixDimension = fileScan.nextInt();
-        int[][] matrix = new int[matrixDimension][matrixDimension];
-
-        String line;
-        fileScan.nextLine();
-        for(int lineCount = 0; lineCount < matrixDimension; lineCount++){
-            line = fileScan.nextLine();
-            System.out.println(line);
-            for(int elementIndex = 0; elementIndex < matrixDimension; elementIndex++){
-                matrix[lineCount][elementIndex] = Integer.parseInt(line.substring(elementIndex,elementIndex+1));
-            }
-        }
-        return matrix;
-        /**
+        double[][] matrix = new double[matrixDimension][matrixDimension];
         for(int row = 0; row < matrixDimension; row++){
             for(int column = 0; column < matrixDimension; column++){
-                matrix[row][column] = fileScan.nextInt();
+                matrix[row][column] = fileScan.nextDouble();
             }
         }
         return matrix;
-        */
+    }
+
+
+
+    public static double[][] transposeOfMatrix(double[][] matrix){
+        double[][] transposedMatrix = new double[matrix.length][matrix.length];
+        double[] columnArray = new double[matrix.length];
+        for(int column = 0; column < matrix.length; column++){
+            for(int row = 0; row < matrix[column].length; row++){
+                transposedMatrix[row][column] = matrix[column][row];
+            }
+            // transposedMatrix[column] = columnArray;
+        }
+        return transposedMatrix;
+    }
+
+    public static double[][] cofactorOfMatrix(double[][] matrix){
+        double[][] cofactoredMatrix = new double[matrix.length][matrix.length];
+        for(int row = 0; row < matrix.length; row++){
+            for(int column = 0; column < matrix[row].length; column++){
+                cofactoredMatrix[row][column] = Math.pow(-1,column+row)*recursiveDeterminant(formSmallerMatrix(matrix,column,row));
+            }
+        }
+        System.out.println("COFACTORED");
+        printMatrix(cofactoredMatrix);
+        return cofactoredMatrix;
+    }
+
+
+    public static double[][] inverseMatrix(double[][] matrix){
+        double[][] inversedMatrix = new double[matrix.length][matrix.length];
+        double determinant = recursiveDeterminant(matrix);
+        if(determinant == 0){
+            System.out.println("Inverse cannot be calculated with a matrix with determinant is 0!\nReturning the empty matrix...");
+            return inversedMatrix;
+        }
+        else {
+            inversedMatrix = transposeOfMatrix(cofactorOfMatrix(matrix));
+            printMatrix(inversedMatrix);
+            for(int row = 0; row < matrix.length; row++){
+                for(int column = 0; column < matrix[row].length; column++){
+                    inversedMatrix[row][column] *= (1/determinant);
+                }
+            }
+        }
+        return inversedMatrix;
     }
 
     /**
@@ -109,10 +146,10 @@ public class ComputeDeterminant {
      * @param matrix to be printed
      */
 
-    public static void printMatrix (int[][] matrix){
+    public static void printMatrix (double[][] matrix){
         for(int row = 0; row < matrix.length; row++){
             for(int column = 0; column < matrix[row].length; column++){
-                System.out.print(matrix[row][column]);
+                System.out.print(matrix[row][column] + " ");
             }
             System.out.println();
         }
@@ -125,10 +162,12 @@ public class ComputeDeterminant {
         Scanner stringScan = new Scanner(System.in);
         System.out.print("Enter the file's name to be read:");
         String fileName = stringScan.nextLine();
-        int[][] matrix = generateMatrix(fileName);
+        double[][] matrix = generateMatrix(fileName);
         printMatrix(matrix);
+        System.out.println();
+        double[][] inversedMatrix = inverseMatrix(matrix);
+        printMatrix(inversedMatrix);
         System.out.println("Determinant is " + recursiveDeterminant(matrix));
     }
-
 
 }
